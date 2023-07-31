@@ -1,0 +1,115 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model patient {
+  patientID    String        @unique
+  name         String        @unique
+  age          Int
+  tell         String        @unique
+  sex          String
+  password     String
+  accountType  String        @default("PATIENT")
+  joinedAt     DateTime      @default(now())
+  Responsibles responsible[]
+  Report       Report[]
+}
+
+model responsible {
+  id              Int      @unique @default(autoincrement())
+  name            String   @unique
+  age             Int
+  tell            String   @unique
+  backup_tell     String   @unique
+  sex             String
+  email           String   @unique
+  ResponsibleType String
+  accountType     String   @default("RESPONSIBLE")
+  joinedAt        DateTime @default(now())
+  patient         patient? @relation(fields: [patientId], references: [patientID])
+  patientId       String?
+}
+
+model admin {
+  id          Int    @unique @default(autoincrement())
+  name        String
+  email       String @unique
+  accountType String @default("ADMIN")
+  password    String
+}
+
+model Report {
+  id        Int        @unique @default(autoincrement())
+  patient   patient?   @relation(fields: [patientId], references: [patientID])
+  patientId String?
+  date      DateTime   @default(now())
+  BodyTemp  BodyTemp[]
+  RoomTemp  RoomTemp[]
+  Heart     Heart[]
+  Oxygen    Oxygen[]
+  Falling   Falling[]
+  Humidity  Humidity[]
+}
+
+model BodyTemp {
+  id       Int      @unique @default(autoincrement())
+  data     String
+  date     DateTime @default(now())
+  state    String   @default("")
+  Report   Report?  @relation(fields: [reportID], references: [id])
+  reportID Int?
+}
+
+model RoomTemp {
+  id       Int      @unique @default(autoincrement())
+  data     String
+  date     DateTime @default(now())
+  state    String   @default("")
+  Report   Report?  @relation(fields: [reportID], references: [id])
+  reportID Int?
+}
+
+model Heart {
+  id       Int      @unique @default(autoincrement())
+  data     String
+  state    String   @default("")
+  date     DateTime @default(now())
+  Report   Report?  @relation(fields: [reportID], references: [id])
+  reportID Int?
+}
+
+model Oxygen {
+  id       Int      @unique @default(autoincrement())
+  data     String
+  state    String   @default("")
+  date     DateTime @default(now())
+  Report   Report?  @relation(fields: [reportID], references: [id])
+  reportID Int?
+}
+
+model Humidity {
+  id    Int      @unique @default(autoincrement())
+  data  String
+  state String   @default("")
+  date  DateTime @default(now())
+
+  Report   Report? @relation(fields: [reportID], references: [id])
+  reportID Int?
+}
+
+model Falling {
+  id   Int      @unique @default(autoincrement())
+  data Int
+  date DateTime @default(now())
+
+  Report   Report? @relation(fields: [reportID], references: [id])
+  reportID Int?
+}
